@@ -1,0 +1,14 @@
+- name: "Install Ansible Semaphore with PostgreSQL"
+  hosts: test
+  become: true
+
+  gather_facts: true
+  gather_subset:
+  - "min"
+
+  #  vars:
+  #  - vars/vars.yml
+
+  roles:
+  - postgres
+  - semaphore

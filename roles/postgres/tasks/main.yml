@@ -1,0 +1,41 @@
+- name: "Initialise variables for postgres"
+  include_role:
+    name: geerlingguy.postgresql
+    tasks_from: variables
+
+- name: "Setup postgres"
+  include_role:
+    name: geerlingguy.postgresql
+    tasks_from: setup-RedHat
+
+- name: "Init postgres"
+  include_role:
+    name: geerlingguy.postgresql
+    tasks_from: initialize
+
+- name: "Start PostgreSQL server"
+  systemd:
+    name: "{{ postgresql_daemon }}"
+    state: started
+
+- name: "Configure postgres"
+  include_role:
+    name: geerlingguy.postgresql
+    tasks_from: configure
+
+- name: "Configure users"
+  include_role:
+    name: geerlingguy.postgresql
+    tasks_from: users
+
+- name: "Create db user for Semaphore"
+  community.postgresql.postgresql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    login_host: "{{ db_host }}"
+
+- name: "Create db for Semaphore"
+  community.postgresql.postgresql_db:
+    name: "{{ db_name }}"
+    owner: "{{ db_user }}"
+    login_host: "{{ db_host }}"

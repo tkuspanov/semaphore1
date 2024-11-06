@@ -1,0 +1,16 @@
+{
+  "postgres": {
+    "host": "{{ db_host }}:{{ db_port | default('5432') }}",
+    "user": "{{ db_user }}",
+    "pass": "{{ db_password }}",
+    "name": "{{ db_name }}",
+    "options": {
+      "sslmode": "disable"
+    }
+  },
+  "dialect": "postgres",
+  "tmp_path": "{{ tmp_path | default('/tmp/semaphore') }}",
+  "cookie_hash": "{{ cookie_hash }}",
+  "cookie_encryption": "{{ cookie_encryption }}",
+  "access_key_encryption": "{{ access_key_encryption }}"
+}

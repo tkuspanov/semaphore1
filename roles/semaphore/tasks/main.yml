@@ -1,0 +1,64 @@
+- name: "Install dependencies"
+  ansible.builtin.yum:
+    name:
+    - git
+    - wget
+    state: present
+    update_cache: true
+
+- name: "Download Semaphore"
+  ansible.builtin.get_url:
+    url: "https://github.com/ansible-semaphore/semaphore/releases/download/v2.10.35\
+      /semaphore_2.10.35_linux_amd64.tar.gz"
+    dest: "/tmp/semaphore.tar.gz"
+
+- name: "Extract Semaphore"
+  ansible.builtin.unarchive:
+    src: "/tmp/semaphore.tar.gz"
+    dest: "/usr/bin/"
+    remote_src: yes
+
+- name: "Create Semaphore configuration directory"
+  ansible.builtin.file:
+    path: "/etc/semaphore"
+    state: directory
+
+- name: "Configure Semaphore"
+  ansible.builtin.template:
+    src: "files/config.j2"
+    dest: "/etc/semaphore/config.json"
+
+- name: "Create systemd service file for Semaphore"
+  ansible.builtin.template:
+    src: "files/service.j2"
+    dest: "/usr/lib/systemd/system/semaphore.service"
+    mode: "0644"
+
+- name: "Reload systemd daemon"
+  systemd:
+    daemon_reload: yes
+
+- name: "Enable and start Semaphore"
+  ansible.builtin.systemd:
+    name: semaphore
+    enabled: true
+    state: started
+
+- name: "Create user if not exitst"
+  ansible.builtin.shell: |
+    semaphore user add --admin --login {{ admin_user }} --name {{ admin_user }} --email {{ admin_email }} --password {{ admin_pass }}
+    touch /etc/semaphore/admin_user
+  args:
+    creates: /etc/semaphore/admin_user
+
+- name: "Open port 3000 for Semaphore UI in firewalld"
+  ansible.builtin.firewalld:
+    port: 3000/tcp
+    permanent: true
+    state: enabled
+  become: true
+
+- name: "Reload firewalld to apply changes"
+  ansible.builtin.firewalld:
+    state: reloaded
+  become: true

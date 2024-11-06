@@ -1,0 +1,4 @@
+db_user: "semaphore"
+db_password: "password"
+db_name: "semaphore"
+db_host: "localhost"
