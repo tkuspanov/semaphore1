@@ -56,9 +56,4 @@
     port: 3000/tcp
     permanent: true
     state: enabled
-  become: true
-
-- name: "Reload firewalld to apply changes"
-  ansible.builtin.firewalld:
-    state: reloaded
-  become: true
+    immediate: true
